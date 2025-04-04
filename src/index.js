@@ -4,9 +4,12 @@ const app = express(); // Create express app
 const port = 5000; // Define port
 
 // Import routes
-//const itemRoutes = require('./routes/itemRoutes'); // Import item routes
-//const userRoutes = require('./routes/userRoutes'); // Import user routes
-//const profileRoutes = require('./routes/profileRoutes'); // Import profile routes
+//const itemRoutes = require('./routes/itemRoutes'); 
+const userRoutes = require('./routes/userRoutes');
+//const profileRoutes = require('./routes/profileRoutes'); 
+
+
+app.use('/api/users', userRoutes); // Use user routes
 
 // Middleware
 const dbUrl = 'mongodb://localhost:27017/fin_app'; // MongoDB connection URL

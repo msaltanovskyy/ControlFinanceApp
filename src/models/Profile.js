@@ -17,6 +17,16 @@ const profileSchema = mongoose.Schema(
             type: Date,
             default: Date.now
         },
+
+        type : {
+            type: String,
+            required: [true, "Please select profile type!!!"]
+        },
+
+        isActive: {
+            type: Boolean,
+            default: true
+        },
         
     },
 
@@ -26,4 +36,5 @@ const profileSchema = mongoose.Schema(
 module.exports = mongoose.model('profile', profileSchema)
 
 
-/// Профиль - это набор которые можно купить, по катеогориям,например, еда, одежда, развлечения и т.д.
+/// RU: Профиль - это профиль затрат/доходов от определеной категории
+/// EN: Profile is a profile of expenses/income from a certain category
