@@ -7,9 +7,12 @@ const port = 5000; // Define port
 //const itemRoutes = require('./routes/itemRoutes'); 
 const userRoutes = require('./routes/userRoutes');
 //const profileRoutes = require('./routes/profileRoutes'); 
+//const transactionRoutes = require('./routes/transactionRoutes'); 
 
-
-app.use('/api/users', userRoutes); // Use user routes
+app.use('/api/users', userRoutes); 
+//app.use('/api/items', itemRoutes); 
+//app.use('/api/profiles', profileRoutes); 
+//app.use('/api/transactions', transactionRoutes); 
 
 // Middleware
 const dbUrl = 'mongodb://localhost:27017/fin_app'; // MongoDB connection URL
@@ -18,20 +21,13 @@ const dbUrl = 'mongodb://localhost:27017/fin_app'; // MongoDB connection URL
 app.use(express.json());
 
 
-app.get('/', (req, res) => {
-    res.send("Hello world!!!");
-});
-
 // create server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
 
 // connecpt to db
-mongoose.connect(dbUrl, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
+mongoose.connect(dbUrl)
 .then(() => {
     console.log('Connect complete');
 })

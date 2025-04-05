@@ -1,5 +1,5 @@
 const { model } = require("mongoose");
-const { get } = require("../routes/userRoutes");
+//const { get } = require("../routes/userRoutes");
 
 const registerUser = async (req, res) => {
     res.json({ message: "Register User" });
