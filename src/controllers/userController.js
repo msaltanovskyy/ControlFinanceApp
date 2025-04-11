@@ -29,7 +29,7 @@ const deactiveUser = async (req, res) => {
 }
 
 const getUser = async (req, res) => {
-    res.json({ message: "Get User" });
+    res.status(200).json({ message: "Get User" });
 }
 
 const getAllUsers = async (req, res) => {
