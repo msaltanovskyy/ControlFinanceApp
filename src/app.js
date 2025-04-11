@@ -10,7 +10,6 @@ const userRoutes = require('./routes/userRoutes');
 //const profileRoutes = require('./routes/profileRoutes'); 
 //const transactionRoutes = require('./routes/transactionRoutes'); 
 
-app.use('/api/users', userRoutes); 
 //app.use('/api/items', itemRoutes); 
 //app.use('/api/profiles', profileRoutes); 
 //app.use('/api/transactions', transactionRoutes); 
@@ -20,6 +19,10 @@ const dbUrl = 'mongodb://localhost:27017/fin_app'; // MongoDB connection URL
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
 app.use(express.json()); // Parse JSON data
 app.use(errorHandler); // Use error handler middleware
+
+
+app.use('/api/users', userRoutes); // Use user routes
+
 
 // create server
 app.listen(port, () => {
