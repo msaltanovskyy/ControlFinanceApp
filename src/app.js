@@ -29,8 +29,8 @@ app.listen(port, () => {
 // connecpt to db
 mongoose.connect(dbUrl)
 .then(() => {
-    console.log('Connect complete');
+    console.log('Connect to DB');
 })
 .catch(err => {
-    console.error('Connect break:', err);
+    console.error('Conncet breake', err);
 });

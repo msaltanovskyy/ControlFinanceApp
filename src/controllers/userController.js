@@ -2,7 +2,11 @@ const { model } = require("mongoose");
 //const { get } = require("../routes/userRoutes");
 
 const registerUser = async (req, res) => {
-    res.json({ message: "Register User" });
+    if (!req.body.text) {
+        res.status(400);
+        throw new Error('Please add text field');
+    }
+    res.status(200).json({message: 'register user'});
 }
 
 const loginUser = async (req, res) => {
