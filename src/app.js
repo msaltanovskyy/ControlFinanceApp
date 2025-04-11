@@ -2,6 +2,7 @@ const express = require('express'); // Import express
 const mongoose = require('mongoose'); // Import mongoose
 const app = express(); // Create express app
 const port = 5000; // Define port
+const {errorHandler} = require('./middleware/errorMiddleware'); // Import error handler middleware
 
 // Import routes
 //const itemRoutes = require('./routes/itemRoutes'); 
@@ -16,10 +17,9 @@ app.use('/api/users', userRoutes);
 
 // Middleware
 const dbUrl = 'mongodb://localhost:27017/fin_app'; // MongoDB connection URL
-
-// Middleware JSON
-app.use(express.json());
-
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
+app.use(express.json()); // Parse JSON data
+app.use(errorHandler); // Use error handler middleware
 
 // create server
 app.listen(port, () => {
