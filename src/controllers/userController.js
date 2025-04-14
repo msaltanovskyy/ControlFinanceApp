@@ -74,7 +74,7 @@ const registerUser = async (req, res, next) => {
             res.status(400);
             return next(new Error('Password must be at least 8 characters'));
         }
-        
+
         const hashedPassword = await bcrypt.hash(password, salt); // Hash password
 
         // create user
@@ -95,6 +95,31 @@ const registerUser = async (req, res, next) => {
 //@route POST /api/users/login
 //@access Public
 const loginUser = async (req, res) => {
+
+    const { email, password } = req.body;
+
+    // check if user already exists
+    if (!email || !password) {
+        res.status(400);
+        return next(new Error('Please provide email and password'));
+    }
+
+    const user = await User.findOne({ email, password });
+
+    // check if user exists
+    if (!user) {
+        res.status(401);
+        return next(new Error('User not found'));
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password); // Compare password with hashed password
+    if (!isMatch) {
+        res.status(401);
+        return next(new Error('Pssword is incorrect'));
+    }
+
+    
+    // Generate JWT token
     res.json({ message: "Login User" });
 }
 
