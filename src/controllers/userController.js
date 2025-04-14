@@ -1,11 +1,14 @@
-const { model } = require("mongoose");
 const User = require('../models/User'); // Import user model
-
+const bcrypt = require('bcrypt'); // Import bcrypt for password hashing
 
 //@desc Register user
 //@route POST /api/users/register
 //@access Public
 const registerUser = async (req, res, next) => {
+
+    const saltRounds = 10;
+    const salt = await bcrypt.genSalt(saltRounds); // Generate salt for hashing
+
     try {
         if (!req.body) {
             res.status(400);
@@ -24,14 +27,25 @@ const registerUser = async (req, res, next) => {
             return next(new Error('Please provide name, email, and password'));
         }
 
+
+        // check if email is valid
+        const existsUser = await User.findOne({ email });
+        if (existsUser) {
+            res.status(400);
+            return next(new Error('User already exists'));
+        }
+
+        const hashedPassword = await bcrypt.hash(password, salt); // Hash password
+
         // create user
         const user = await User.create({
             name,
             email,
-            password,
+            password: hashedPassword,
         });
-
+        
         res.status(201).json(user);
+        console.log(user.name + " registered successfully");
     } catch (error) {
         next(error);
     }
