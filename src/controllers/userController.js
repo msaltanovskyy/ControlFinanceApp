@@ -122,34 +122,48 @@ const registerUser = async (req, res, next) => {
 //@desc Login user
 //@route POST /api/users/login
 //@access Public
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
 
-    const { email, password } = req.body;
+        // Проверка обязательных полей
+        if (!email || !password) {
+            res.status(400);
+            return next(new Error('Please provide email and password'));
+        }
 
-    // check if user already exists
-    if (!email || !password) {
-        res.status(400);
-        return next(new Error('Please provide email and password'));
+        // Поиск пользователя по email
+        const user = await User.findOne({ email });
+
+        // Проверка существования пользователя
+        if (!user) {
+            res.status(401);
+            return next(new Error('User not found'));
+        }
+
+        // Сравнение пароля
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            res.status(401);
+            return next(new Error('Password is incorrect'));
+        }
+
+        // Генерация JWT токена
+        const token = geneatateJWT(user._id);
+
+        res.status(200).json({
+            message: 'Login successful',
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+            },
+            token,
+        });
+    } catch (error) {
+        next(error); // Передача ошибки в middleware для обработки ошибок
     }
-
-    const user = await User.findOne({ email, password });
-
-    // check if user exists
-    if (!user) {
-        res.status(401);
-        return next(new Error('User not found'));
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password); // Compare password with hashed password
-    if (!isMatch) {
-        res.status(401);
-        return next(new Error('Pssword is incorrect'));
-    }
-
-
-    // Generate JWT token
-    res.json({ message: "Login User" });
-}
+};
 
 
 //@desc Logout user
