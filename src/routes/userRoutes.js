@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { protect } = require("../middleware/authMiddleware"); // Import auth middleware
 
 const {
     registerUser,
@@ -7,9 +8,9 @@ const {
     logoutUser,
     editUser,
     deactiveUser,
-    getUser,
     getAllUsers,
-    setBalance
+    setBalance,
+    getLoggedInUser,
 } = require('../controllers/userController'); // Import user controller
 
 //POST routes
@@ -21,8 +22,8 @@ router.post('/deactive/:id', deactiveUser); // Deactive user route
 router.post('/setbalance/:id', setBalance); // Set balance route
 
 //GET routes
-router.get('/:id', getUser); // Get user route
 router.get('/', getAllUsers); // Get all users route
+router.get("/me", protect, getLoggedInUser); // Get logged in user route
 
 
 module.exports = router; // Export user routes

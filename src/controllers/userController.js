@@ -2,6 +2,8 @@ const User = require('../models/User'); // Import user model
 const bcrypt = require('bcrypt'); // Import bcrypt for password hashing
 const validator = require('deep-email-validator'); // Import email validator
 const JWT = require('jsonwebtoken'); // Import JWT for token generation
+const asyncHandler = require('express-async-handler');
+
 
 // Import dotenv for environment variables
 const geneatateJWT = (id) => {
@@ -9,6 +11,19 @@ const geneatateJWT = (id) => {
         expiresIn: process.env.JWT_EXPIRE
     });
 };
+
+//@desc Get logged in user
+//@route GET /api/users/me
+//@access Private
+const getLoggedInUser = asyncHandler(async (req, res) => {
+    const { _id, name, email } = await User.findById(req.user.id);
+    res.status(200).json({
+        id: _id,
+        name,
+        email,
+    });
+});
+
 
 //@desc Register user
 //@route POST /api/users/register
@@ -165,18 +180,6 @@ const deactiveUser = async (req, res) => {
     res.json({ message: "Deactive User" });
 }
 
-//@desc Get user
-//@route GET /api/users/:id
-//@access Private
-const getUser = async (req, res) => {
-    const userId = req.params.id;
-    if (!userId) {
-        res.status(400);
-        return next(new Error('User ID is required'));
-    }
-    res.status(200).json(users);
-}
-
 //@desc Get all users
 //@route GET /api/users
 //@access Private
@@ -193,6 +196,6 @@ module.exports = {
     editUser,
     deactiveUser,
     setBalance,
-    getUser,
-    getAllUsers
+    getAllUsers,
+    getLoggedInUser
 }
