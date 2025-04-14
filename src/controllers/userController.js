@@ -69,6 +69,12 @@ const registerUser = async (req, res, next) => {
             });
         }
 
+        // check password length
+        if (password.length < 8) {
+            res.status(400);
+            return next(new Error('Password must be at least 8 characters'));
+        }
+        
         const hashedPassword = await bcrypt.hash(password, salt); // Hash password
 
         // create user
