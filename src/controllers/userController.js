@@ -1,7 +1,14 @@
 const User = require('../models/User'); // Import user model
 const bcrypt = require('bcrypt'); // Import bcrypt for password hashing
 const validator = require('deep-email-validator'); // Import email validator
+const JWT = require('jsonwebtoken'); // Import JWT for token generation
 
+// Import dotenv for environment variables
+const geneatateJWT = (id) => {
+    return JWT.sign({ id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRE
+    });
+};
 
 //@desc Register user
 //@route POST /api/users/register
@@ -42,7 +49,7 @@ const registerUser = async (req, res, next) => {
         if (!valid) {
             let errorMessage;
         
-            // Формируем более детальное сообщение об ошибке в зависимости от причины
+            // Customize error messages based on the reason
             switch (reason) {
                 case 'tooGeneric':
                     errorMessage = 'The email address is too generic. Please use a more specific email address.';
@@ -84,8 +91,14 @@ const registerUser = async (req, res, next) => {
             password: hashedPassword,
         });
         
-        res.status(201).json(user);
-        console.log(user.name + " registered successfully");
+        jwtToken = geneatateJWT(user._id); // Generate JWT token
+        res.status(201).json({
+            user,
+            token: jwtToken,
+        });
+        console.log(user.name + " registered successfully" + " with email: " + user.email );
+        console.log("User ID: " + user._id); 
+        console.log("User JWT: " + jwtToken);
     } catch (error) {
         next(error);
     }
@@ -118,7 +131,7 @@ const loginUser = async (req, res) => {
         return next(new Error('Pssword is incorrect'));
     }
 
-    
+
     // Generate JWT token
     res.json({ message: "Login User" });
 }
