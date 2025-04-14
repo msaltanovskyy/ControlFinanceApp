@@ -12,15 +12,19 @@ const registerUser = async (req, res, next) => {
             return next(new Error('Request body is missing'));
         }
 
-        const { name, email, password } = req.body;
+        const { 
+            name, 
+            email, 
+            password 
+        } = req.body;
 
-        // Проверка обязательных полей
+        // check if user already exists
         if (!name || !email || !password) {
             res.status(400);
             return next(new Error('Please provide name, email, and password'));
         }
 
-        // Создание пользователя
+        // create user
         const user = await User.create({
             name,
             email,
@@ -55,6 +59,13 @@ const editUser = async (req, res) => {
     res.json({ message: "Edit User" });
 }
 
+//@desc Set balance
+//@route POST /api/users/setbalance/:id
+// //@access Private
+const setBalance = async (req, res) => { 
+    res.json({ message: "Set Balance" });
+}
+
 //@desc Deactive user
 // @route POST /api/users/deactive/:id
 // @access Private
@@ -66,7 +77,12 @@ const deactiveUser = async (req, res) => {
 //@route GET /api/users/:id
 //@access Private
 const getUser = async (req, res) => {
-    res.status(200).json({ message: "Get User" });
+    const userId = req.params.id;
+    if (!userId) {
+        res.status(400);
+        return next(new Error('User ID is required'));
+    }
+    res.status(200).json(users);
 }
 
 //@desc Get all users
@@ -77,12 +93,14 @@ const getAllUsers = async (req, res) => {
     res.json(users);
 }
 
+
 module.exports = {  
     registerUser,
     loginUser,
     logoutUser,
     editUser,
     deactiveUser,
+    setBalance,
     getUser,
     getAllUsers
 }

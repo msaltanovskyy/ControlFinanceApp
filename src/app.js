@@ -4,7 +4,6 @@ const {errorHandler} = require('./middleware/errorMiddleware'); // Import error 
 const connectDB = require('./config/db'); // Import database connection
 const dotenv = require('dotenv');
 
-
 // Import routes
 //const itemRoutes = require('./routes/itemRoutes'); 
 const userRoutes = require('./routes/userRoutes');
