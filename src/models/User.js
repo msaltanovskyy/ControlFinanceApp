@@ -1,7 +1,4 @@
 const mongoose = require('mongoose');
-//const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
-//const jwt = require('jsonwebtoken'); // Import jsonwebtoken for token generation
-//const asyncHandler = require('express-async-handler'); // Import express-async-handler for async error handling
 
 
 const userSchema = mongoose.Schema(

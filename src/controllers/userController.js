@@ -169,8 +169,12 @@ const getLoggedInUser = asyncHandler(async (req, res) => {
 //@route POST /api/users/logout
 //@access Private
 const logoutUser = async (req, res) => {
-    res.json({ message: "Logout User" });
-}
+    res.cookie('token', '', {
+        httpOnly: true,
+        expires: new Date(0), // Set the cookie to expire immediately
+    });
+    res.status(200).json({ message: "User logged out successfully" });
+};
 
 //@desc Edit user
 //@route POST /api/users/edit/:id
