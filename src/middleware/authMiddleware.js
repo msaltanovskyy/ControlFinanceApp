@@ -4,6 +4,7 @@ const asyncHandler = require("express-async-handler");
 const User = require('../models/User'); // Import user model Import user model
 
 const protect = asyncHandler(async (req, res, next) => {
+  
     let token;
     if (
         req.headers.authorization &&

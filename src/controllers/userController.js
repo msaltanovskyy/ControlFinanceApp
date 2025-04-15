@@ -111,9 +111,10 @@ const registerUser = async (req, res, next) => {
 //@route POST /api/users/login
 //@access Public
 const loginUser = async (req, res, next) => {
-    try {
-        const { email, password } = req.body;
 
+    try {
+        
+        const { email, password } = req.body;
         // Check email and password
         if (!email || !password) {
             res.status(400);
@@ -122,13 +123,17 @@ const loginUser = async (req, res, next) => {
 
         // check if user exists
         const user = await User.findOne({ email });
-
     
         if (!user) {
             res.status(401);
             return next(new Error('User not found'));
         }
 
+        if (!user.isActive) {
+            res.status(403);
+            return next(new Error('User is deactivated'));
+        }
+        
         // Compare password with hashed password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
