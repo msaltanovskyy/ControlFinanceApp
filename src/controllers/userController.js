@@ -1,7 +1,7 @@
-const User = require('../models/User'); // Import user model
-const bcrypt = require('bcrypt'); // Import bcrypt for password hashing
-const validator = require('deep-email-validator'); // Import email validator
-const JWT = require('jsonwebtoken'); // Import JWT for token generation
+const User = require('../models/User'); //user model
+const bcrypt = require('bcrypt'); //password hashing
+const validator = require('deep-email-validator'); //email validator
+const JWT = require('jsonwebtoken'); // JWT
 const asyncHandler = require('express-async-handler');
 
 
@@ -11,18 +11,6 @@ const geneatateJWT = (id) => {
         expiresIn: process.env.JWT_EXPIRE
     });
 };
-
-//@desc Get logged in user
-//@route GET /api/users/me
-//@access Private
-const getLoggedInUser = asyncHandler(async (req, res) => {
-    const { _id, name, email } = await User.findById(req.user.id);
-    res.status(200).json({
-        id: _id,
-        name,
-        email,
-    });
-});
 
 
 //@desc Register user
@@ -126,29 +114,29 @@ const loginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
-        // Проверка обязательных полей
+        // Check email and password
         if (!email || !password) {
             res.status(400);
             return next(new Error('Please provide email and password'));
         }
 
-        // Поиск пользователя по email
+        // check if user exists
         const user = await User.findOne({ email });
 
-        // Проверка существования пользователя
+    
         if (!user) {
             res.status(401);
             return next(new Error('User not found'));
         }
 
-        // Сравнение пароля
+        // Compare password with hashed password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             res.status(401);
             return next(new Error('Password is incorrect'));
         }
 
-        // Генерация JWT токена
+        // generate JWT token
         const token = geneatateJWT(user._id);
 
         res.status(200).json({
@@ -161,10 +149,21 @@ const loginUser = async (req, res, next) => {
             token,
         });
     } catch (error) {
-        next(error); // Передача ошибки в middleware для обработки ошибок
+        next(error);
     }
 };
 
+//@desc Get logged in user
+//@route GET /api/users/me
+//@access Private
+const getLoggedInUser = asyncHandler(async (req, res) => {
+    const { _id, name, email } = await User.findById(req.user.id);
+    res.status(200).json({
+        id: _id,
+        name,
+        email,
+    });
+});
 
 //@desc Logout user
 //@route POST /api/users/logout

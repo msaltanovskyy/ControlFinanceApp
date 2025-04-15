@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require("../middleware/authMiddleware"); // Import auth middleware
+const { protect, roleIsAdmin } = require("../middleware/authMiddleware"); // Import auth middleware
 
 const {
     registerUser,
@@ -22,7 +22,7 @@ router.post('/deactive/:id', deactiveUser); // Deactive user route
 router.post('/setbalance/:id', setBalance); // Set balance route
 
 //GET routes
-router.get('/', getAllUsers); // Get all users route
+router.get('/', protect,roleIsAdmin(),getAllUsers); // Get all users route
 router.get("/me", protect, getLoggedInUser); // Get logged in user route
 
 

@@ -32,4 +32,15 @@ const protect = asyncHandler(async (req, res, next) => {
     }
 });
 
-module.exports = { protect };
+const roleIsAdmin = () => {
+  return (req, res, next) => {
+      if (req.user && req.user.isAdmin) {
+          next(); // Пользователь является администратором
+      } else {
+          res.status(403); // Forbidden
+          throw new Error("Not authorized as an admin");
+      }
+  };
+};
+
+module.exports = { protect, roleIsAdmin };
