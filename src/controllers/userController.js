@@ -225,16 +225,69 @@ const editUser = async (req, res, next) => {
 
 //@desc Set balance
 //@route POST /api/users/setbalance/:id
-// //@access Private
-const setBalance = async (req, res) => { 
-    res.json({ message: "Set Balance" });
+//@access Private
+const setBalance = async (req, res) => {
+    
+    const { id } = req.params;
+    const { balance } = req.body;
+
+    const user = await User.find({id});
+
+    if (!user) {
+        res.status(404);
+        return next(new Error('User not found'));
+    }
+
+    if (balance) user.balance = balance;
+    // save update
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+        message: 'User balance updated successfully',
+        user: {
+            id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            balance: updatedUser.balance
+        },
+    });
+
+
 }
 
 //@desc Deactive user
 // @route POST /api/users/deactive/:id
 // @access Private
 const deactiveUser = async (req, res) => {
-    res.json({ message: "Deactive User" });
+    
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    const user = await User.findById(id);   
+
+    if (!user) {
+        res.status(404);
+        return next(new Error('User not found'));
+    }
+
+    if (isActive) user.isActive = isActive;
+
+    // save update
+    const updatedUser = await user.save();
+    
+    if (!updatedUser.isActive) {
+        res.status(403);
+        return next(new Error('User is already deactivated'));
+    }
+    res.status(200).json({
+        message: 'User deactivated successfully',
+        user: {
+            id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            isActive: updatedUser.isActive
+        },
+    });
 }
 
 //@desc Get all users
