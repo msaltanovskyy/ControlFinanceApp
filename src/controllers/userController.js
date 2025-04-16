@@ -184,9 +184,44 @@ const logoutUser = async (req, res) => {
 //@desc Edit user
 //@route POST /api/users/edit/:id
 //@access Private
-const editUser = async (req, res) => {
-    res.json({ message: "Edit User" });
-}
+const editUser = async (req, res, next) => {
+    try {
+        const { id } = req.params; 
+        const { name, email, password } = req.body; 
+
+    
+        const user = await User.findById(id);
+
+        if (!user) {
+            res.status(404);
+            return next(new Error('User not found'));
+        }
+
+    
+        if (name) user.name = name;
+        if (email) user.email = email;
+
+    
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(password, salt);
+        }
+
+        // save update
+        const updatedUser = await user.save();
+
+        res.status(200).json({
+            message: 'User updated successfully',
+            user: {
+                id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+            },
+        });
+    } catch (error) {
+        next(error); // Handle error
+    }
+};
 
 //@desc Set balance
 //@route POST /api/users/setbalance/:id
