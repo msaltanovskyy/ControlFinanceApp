@@ -255,7 +255,7 @@ const setBalance = async (req, res) => {
 
 }
 
-//@desc Deactive user
+//@desc Deactive/active user
 // @route POST /api/users/deactive/:id
 // @access Private
 const deactiveUser = async (req, res, next) => {
@@ -268,18 +268,13 @@ const deactiveUser = async (req, res, next) => {
             res.status(404);
             return next(new Error('User not found'));
         }
-
-        if (!user.isActive) {
-            res.status(403);
-            return next(new Error('User is already deactivated'));
-        }
-
-        user.isActive = false;
-
+        user.isActive = !user.isActive; // Toggle isActive status
+        const message = user.isActive ? 'User activated successfully' : 'User deactivated successfully';
+    
         const updatedUser = await user.save();
 
         res.status(200).json({
-            message: 'User deactivated successfully',
+            message: message,
             user: {
                 id: updatedUser._id,
                 name: updatedUser.name,
@@ -291,6 +286,50 @@ const deactiveUser = async (req, res, next) => {
         next(error);
     }
 };
+
+//@desc Update user role
+//@route POST /api/users/updateRole/:id
+//@access Private
+const updateUserRole = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        // Подсчет администраторов
+        const adminCount = await User.countDocuments({ isAdmin: true });
+
+        if (adminCount === 1 || adminCount === 0) {
+            res.status(400);
+            return next(new Error('There should be at least one admin'));
+        }
+
+
+        const user = await User.findById(id);
+
+        if (!user) {
+            res.status(404);
+            return next(new Error('User not found'));
+        }
+
+        
+        user.isAdmin = !user.isAdmin;
+        const message = user.isAdmin ? 'User is now admin' : 'User is no longer admin';
+
+        const updatedUser = await user.save();
+
+        res.status(200).json({
+            message: message,
+            user: {
+                id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                isAdmin: updatedUser.isAdmin,
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 //@desc Get all users
 //@route GET /api/users
@@ -309,5 +348,6 @@ module.exports = {
     deactiveUser,
     setBalance,
     getAllUsers,
-    getLoggedInUser
+    getLoggedInUser,
+    updateUserRole,
 }
