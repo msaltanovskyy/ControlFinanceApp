@@ -158,7 +158,7 @@ const loginUser = async (req, res, next) => {
     }
 };
 
-//@desc Get logged in user
+//@desc Get logged in userme
 //@route GET /api/users/me
 //@access Private
 const getLoggedInUser = asyncHandler(async (req, res) => {

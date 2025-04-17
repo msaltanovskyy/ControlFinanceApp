@@ -7,13 +7,13 @@ const dotenv = require('dotenv');
 // Import routes
 //const itemRoutes = require('./routes/itemRoutes'); 
 const userRoutes = require('./routes/userRoutes');
-//const profileRoutes = require('./routes/profileRoutes'); 
+const profileRoutes = require('./routes/profileRoutes'); 
 //const transactionRoutes = require('./routes/transactionRoutes'); 
-app.use(express.json()); // Parse JSON data
-//app.use('/api/items', itemRoutes); 
-//app.use('/api/profiles', profileRoutes); 
-//app.use('/api/transactions', transactionRoutes); 
+app.use(express.json()); // Parse JSON data 
+app.use('/api/profiles', profileRoutes); // Use profile routes
 app.use('/api/users', userRoutes); // Use user routes
+//app.use('/api/transactions', transactionRoutes);
+//app.use('/api/items', itemRoutes); // Use item routes 
 
 // Middleware
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data

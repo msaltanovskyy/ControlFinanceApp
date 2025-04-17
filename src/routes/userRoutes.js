@@ -18,7 +18,7 @@ const {
 router.post('/register',protect,roleIsAdmin(), registerUser); // Register user route
 router.post('/login', loginUser); // Login user route
 router.post('/logout',protect,logoutUser); // Logout user route
-router.post('/edi/:id',protect,editUser); // Edit user route
+router.post('/edit/:id',protect,editUser); // Edit user route
 router.post('/deactive/:id',protect,roleIsAdmin(), deactiveUser); // Deactive user route
 router.post('/setbalance/:id',protect, setBalance); // Set balance route
 router.post('/updateRole/:id',protect,roleIsAdmin(), updateUserRole); // Update user role route

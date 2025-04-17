@@ -1,4 +1,4 @@
-const mongoose = required('mongoose')
+const mongoose = require('mongoose')
 
 const profileSchema = mongoose.Schema(
     {
@@ -18,14 +18,15 @@ const profileSchema = mongoose.Schema(
             default: Date.now
         },
 
-        type : {
-            type: String,
-            required: [true, "Please select profile type!!!"]
-        },
-
         isActive: {
             type: Boolean,
             default: true
+        },
+
+        creater: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
         },
         
     },
