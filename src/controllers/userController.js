@@ -75,7 +75,7 @@ const registerUser = async (req, res, next) => {
             return res.status(400).json({
                 status: 'error',
                 message: errorMessage,
-                reason: reason
+                reason: reason, 
             });
         }
 
