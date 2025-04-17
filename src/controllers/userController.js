@@ -199,10 +199,9 @@ const logoutUser = async (req, res) => {
 //@access Private
 const editUser = async (req, res, next) => {
     try {
-        const { id } = req.params; 
-        const { name, email, password } = req.body; 
+        const { id } = req.params;
+        const { name, email, password } = req.body;
 
-    
         const user = await User.findById(id);
 
         if (!user) {
@@ -210,22 +209,21 @@ const editUser = async (req, res, next) => {
             return next(new Error('User not found'));
         }
 
-    
         if (name) user.name = name;
-        if (email) user.email = email;
-
-        const emailValidationResult = await validateEmail(email);
-        if (!emailValidationResult.valid) {
-            res.status(400);
-            return next(new Error(emailValidationResult.errorMessage));
+        if (email) {
+            const emailValidationResult = await validateEmail(email);
+            if (!emailValidationResult.valid) {
+                res.status(400);
+                return next(new Error(emailValidationResult.errorMessage));
+            }
+            user.email = email;
         }
-    
+
         if (password) {
             const salt = await bcrypt.genSalt(10);
             user.password = await bcrypt.hash(password, salt);
         }
 
-        // save update
         const updatedUser = await user.save();
 
         res.status(200).json({
@@ -237,10 +235,9 @@ const editUser = async (req, res, next) => {
             },
         });
     } catch (error) {
-        next(error); // Handle error
+        next(error);
     }
 };
-
 //@desc Set balance
 //@route POST /api/users/setbalance/:id
 //@access Private
@@ -286,9 +283,18 @@ const deactiveUser = async (req, res, next) => {
             res.status(404);
             return next(new Error('User not found'));
         }
-        user.isActive = !user.isActive; // Toggle isActive status
+
+        if (user.isAdmin && !user.isActive) {
+            const adminCount = await User.countDocuments({ isAdmin: true, isActive: true });
+            if (adminCount === 1) {
+                res.status(400);
+                return next(new Error('Cannot deactivate the last active admin'));
+            }
+        }
+
+        user.isActive = !user.isActive;
         const message = user.isActive ? 'User activated successfully' : 'User deactivated successfully';
-    
+
         const updatedUser = await user.save();
 
         res.status(200).json({
@@ -312,15 +318,6 @@ const updateUserRole = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        // Подсчет администраторов
-        const adminCount = await User.countDocuments({ isAdmin: true });
-
-        if (adminCount === 1 || adminCount === 0) {
-            res.status(400);
-            return next(new Error('There should be at least one admin'));
-        }
-
-
         const user = await User.findById(id);
 
         if (!user) {
@@ -328,7 +325,15 @@ const updateUserRole = async (req, res, next) => {
             return next(new Error('User not found'));
         }
 
-        
+        // Проверка на последнего администратора
+        if (user.isAdmin) {
+            const adminCount = await User.countDocuments({ isAdmin: true });
+            if (adminCount === 1) {
+                res.status(400);
+                return next(new Error('There should be at least one admin'));
+            }
+        }
+
         user.isAdmin = !user.isAdmin;
         const message = user.isAdmin ? 'User is now admin' : 'User is no longer admin';
 
@@ -352,10 +357,30 @@ const updateUserRole = async (req, res, next) => {
 //@desc Get all users
 //@route GET /api/users
 //@access Private
-const getAllUsers = async (req, res) => {
-    const users = await User.find();
-    res.json(users);
-}
+const getAllUsers = async (req, res, next) => {
+    try {
+        const { search, page = 1, limit = 10 } = req.query;
+
+        const query = search
+            ? { $or: [{ name: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }] }
+            : {};
+
+        const users = await User.find(query)
+            .skip((page - 1) * limit)
+            .limit(Number(limit));
+
+        const totalUsers = await User.countDocuments(query);
+
+        res.status(200).json({
+            totalUsers,
+            currentPage: Number(page),
+            totalPages: Math.ceil(totalUsers / limit),
+            users,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 
 
 module.exports = {  
