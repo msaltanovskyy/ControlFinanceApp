@@ -12,6 +12,38 @@ const geneatateJWT = (id) => {
     });
 };
 
+//@desc Validate email
+const validateEmail = async (email) => {
+
+    const { valid, reason } = await validator.validate(email);
+    if (!valid) {
+        let errorMessage;
+    
+        // Customize error messages based on the reason
+        switch (reason) {
+            case 'tooGeneric':
+                errorMessage = 'The email address is too generic. Please use a more specific email address.';
+                break;
+            case 'smtp':
+                errorMessage = 'The email domain is not reachable. Please check the email address for typos or try a different one.';
+                break;
+            case 'invalid':
+                errorMessage = 'The email address format is invalid. Please ensure it follows the format: user@example.com.';
+                break;
+            case 'disposable':
+                errorMessage = 'The email address is from a disposable email provider. Please use a permanent email address.';
+                break;
+            case 'unknown':
+            default:
+                errorMessage = 'The email address is not valid. Please try again!';
+                break;
+        }
+        
+        return {valid:false, errorMessage}
+    }
+
+    return {valid:true, errorMessage: null}
+};
 
 //@desc Register user
 //@route POST /api/users/register
@@ -48,35 +80,10 @@ const registerUser = async (req, res, next) => {
         }
 
         //check email validity
-        const { valid, reason } = await validator.validate(email);
-        if (!valid) {
-            let errorMessage;
-        
-            // Customize error messages based on the reason
-            switch (reason) {
-                case 'tooGeneric':
-                    errorMessage = 'The email address is too generic. Please use a more specific email address.';
-                    break;
-                case 'smtp':
-                    errorMessage = 'The email domain is not reachable. Please check the email address for typos or try a different one.';
-                    break;
-                case 'invalid':
-                    errorMessage = 'The email address format is invalid. Please ensure it follows the format: user@example.com.';
-                    break;
-                case 'disposable':
-                    errorMessage = 'The email address is from a disposable email provider. Please use a permanent email address.';
-                    break;
-                case 'unknown':
-                default:
-                    errorMessage = 'The email address is not valid. Please try again!';
-                    break;
-            }
-        
-            return res.status(400).json({
-                status: 'error',
-                message: errorMessage,
-                reason: reason, 
-            });
+        const emailValidationResult = await validateEmail(email);
+        if (!emailValidationResult.valid) {
+            res.status(400);
+            return next(new Error(emailValidationResult.errorMessage));
         }
 
         // check password length
@@ -132,6 +139,12 @@ const loginUser = async (req, res, next) => {
         if (!user.isActive) {
             res.status(403);
             return next(new Error('User is deactivated'));
+        }
+
+        const emailValidationResult = await validateEmail(email);
+        if (!emailValidationResult.valid) {
+            res.status(400);
+            return next(new Error(emailValidationResult.errorMessage));
         }
         
         // Compare password with hashed password
@@ -201,6 +214,11 @@ const editUser = async (req, res, next) => {
         if (name) user.name = name;
         if (email) user.email = email;
 
+        const emailValidationResult = await validateEmail(email);
+        if (!emailValidationResult.valid) {
+            res.status(400);
+            return next(new Error(emailValidationResult.errorMessage));
+        }
     
         if (password) {
             const salt = await bcrypt.genSalt(10);

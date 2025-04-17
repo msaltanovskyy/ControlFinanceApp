@@ -24,7 +24,12 @@ const itemSchema = mongoose.Schema({
         required: [true, "Enter image"]
     },
 
-    isAktive: {
+    category: {
+        type: String,
+        required: [true, "Select category"]
+    },
+
+    isActive: {
         type: Boolean,
         default: true        
     },

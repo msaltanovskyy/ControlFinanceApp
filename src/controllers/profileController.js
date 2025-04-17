@@ -77,6 +77,11 @@ const updateProfile = asyncHandler(async (req, res) => {
 
 });
 
+
+
+//desc: Deactive/active profile
+//@route POST /api/profiles/deactive/:id
+//@access Private
 const deactiveProfile = asyncHandler(async (req, res) => {  
     const profile = await Profile.findById(req.params.id);
 
@@ -112,7 +117,6 @@ const deactiveProfile = asyncHandler(async (req, res) => {
 const deleteProfile = asyncHandler(async (req, res) => {
 
     res.status(200).json("delete profile");
-
 
 });
 
